@@ -39,6 +39,16 @@ async function run() {
       res.send("Task Manager is running");
     });
 
+    app.get("/tasks", async (req, res) => {
+      try {
+        const tasks = await tasksCollection.find({}).toArray();
+        res.json(tasks);
+      } catch (err) {
+        console.error("Error fetching tasks:", err);
+        res.status(500).json({ error: "Internal Server Error" });
+      }
+    });
+
     app.post("/tasks", async (req, res) => {
       const newTask = req.body;
 
