@@ -81,6 +81,25 @@ async function run() {
         res.status(500).json({ error: "Internal Server Error" });
       }
     });
+
+    app.delete("/tasks/:id", async (req, res) => {
+      const taskId = req.params.id;
+
+      try {
+        const result = await tasksCollection.deleteOne({
+          _id: new ObjectId(taskId),
+        });
+
+        if (result.deletedCount === 0) {
+          res.status(400).json({ error: "Task not found" });
+        } else {
+          res.json({ message: "Task deleted successfully" });
+        }
+      } catch (err) {
+        console.error("Error deleting task:", err);
+        res.status(500).json({ error: "Internal Server Error" });
+      }
+    });
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
