@@ -9,7 +9,7 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const uri = process.env.DATABASE_URI;
 
 const client = new MongoClient(uri, {
@@ -57,6 +57,27 @@ async function run() {
         res.status(201).json(result);
       } catch (err) {
         console.error("Error creating task:", err);
+        res.status(500).json({ error: "Internal Server Error" });
+      }
+    });
+
+    app.patch("/tasks/:id", async (req, res) => {
+      const taskId = req.params.id;
+      const updateTaskData = req.body;
+
+      try {
+        const result = await tasksCollection.updateOne(
+          { _id: new ObjectId(taskId) },
+          { $set: updateTaskData }
+        );
+
+        if (result.matchedCount === 0) {
+          res.status(400).json({ error: "Task not found" });
+        } else {
+          res.json({ message: "Task updated successfully" });
+        }
+      } catch (err) {
+        console.error("Error updating task:", err);
         res.status(500).json({ error: "Internal Server Error" });
       }
     });
